@@ -41,8 +41,10 @@ export default defineConfig({
       renderer: {},
     }),
   ],
-  server: process.env.VSCODE_DEBUG ? {
-    host: pkg.debug.env.VITE_DEV_SERVER_HOSTNAME,
-    port: pkg.debug.env.VITE_DEV_SERVER_PORT,
-  } : undefined,
+  server: process.env.VSCODE_DEBUG
+    ? {
+        host: pkg.debug.env.VITE_DEV_SERVER_HOSTNAME,
+        port: pkg.debug.env.VITE_DEV_SERVER_PORT,
+      }
+    : undefined,
 })
