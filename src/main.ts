@@ -1,13 +1,26 @@
 import { createApp } from 'vue'
 import { createRouter, createWebHashHistory } from 'vue-router'
 import App from './App.vue'
-
-import AboutView from './about/AboutView.vue'
+import TagView from './tags/TagView.vue'
+import ProductView from './products/ProductsView.vue'
 import ExpensesView from './expenses/ExpensesView.vue'
+import ExpenseForm from './expenses/ExpenseForm.vue'
 
 const routes = [
-  { path: '/', component: ExpensesView },
-  { path: '/about', component: AboutView },
+  {
+    path: '/expenses',
+    name: 'expenses',
+    component: ExpensesView,
+    children: [
+      {
+        path: 'detail/:id?',
+        name: 'expense-detail',
+        component: ExpenseForm,
+      },
+    ],
+  },
+  { path: '/tags', name: 'tags', component: TagView },
+  { path: '/products', name: 'products', component: ProductView },
 ]
 
 const router = createRouter({

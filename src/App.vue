@@ -1,19 +1,28 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import TopMenu from './components/TopMenu.vue'
+</script>
 
 <template>
-  <nav :class="$style.classA">
-    <router-link to="/">Go to Home</router-link>
-    <router-link to="/about">Go to About</router-link>
-  </nav>
-
+  <TopMenu />
   <main>
     <router-view></router-view>
   </main>
 </template>
 
-<style module lang="scss">
-.classA {
-  margin: 0;
-  border: none;
+<style lang="scss">
+@import '../node_modules/normalize.css/normalize.css';
+@import './design';
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+#app {
+  @extend %font-content;
+
+  height: 100vh;
+  background: $color-bg-base;
 }
 </style>
