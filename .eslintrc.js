@@ -1,20 +1,18 @@
 module.exports = {
+  root: true,
   env: {
-    browser: true,
-    es2021: true,
+    node: true,
+    'vue/setup-compiler-macros': true,
   },
   extends: [
+    'plugin:vue/vue3-recommended',
     'eslint:recommended',
-    'plugin:vue/vue3-essential',
-    'plugin:@typescript-eslint/recommended',
-    'prettier',
+    '@vue/typescript/recommended',
+    'plugin:prettier/recommended',
   ],
-  parser: '@typescript-eslint/parser',
   parserOptions: {
     ecmaVersion: 'latest',
-    sourceType: 'module',
   },
-  plugins: ['vue', '@typescript-eslint', 'prettier'],
   rules: {
     complexity: [2, 12],
     'max-statements': [2, 35],

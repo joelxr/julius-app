@@ -10,7 +10,9 @@
 // │ ├── ...other-static-files-from-public
 // │
 process.env.DIST = join(__dirname, '../..')
-process.env.PUBLIC = app.isPackaged ? process.env.DIST : join(process.env.DIST, '../public')
+process.env.PUBLIC = app.isPackaged
+  ? process.env.DIST
+  : join(process.env.DIST, '../public')
 
 import { app, BrowserWindow, shell, ipcMain } from 'electron'
 import { release } from 'os'

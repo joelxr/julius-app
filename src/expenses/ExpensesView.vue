@@ -1,6 +1,3 @@
-<script setup lang="ts">
-</script>
+<script setup lang="ts"></script>
 
-<template>
-  Teste 2
-</template>
+<template> Teste 2 </template>
