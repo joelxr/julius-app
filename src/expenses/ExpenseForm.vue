@@ -44,11 +44,12 @@ watchEffect(() => {
 async function loadExpense(expenseId: number) {
   if (expenseId) {
     const { data } = await expenseStore.findOne(expenseId)
+    console.log(data)
     expense.value = {
-      ...data[0],
-      date: formatISO9075(parseISO(data[0].date)),
+      ...data,
+      date: formatISO9075(parseISO(data.date)),
     }
-    selectedProduct.value = data[0].product[0]
+    selectedProduct.value = data.product[0]
   }
 }
 
@@ -138,7 +139,6 @@ async function fetchProducts(text: string): Promise<string[]> {
 .titleInput {
   width: 100%;
   padding-left: 0;
-  margin-left: 8px;
   font-size: 1.75rem;
   background-color: $color-bg-base;
   border-radius: 0;

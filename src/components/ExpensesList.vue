@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watchEffect } from 'vue'
-import { differenceInDays, format, parseISO } from 'date-fns'
-import { money } from '../formatters'
+import { money, relativeDateFormat } from '../formatters'
+import getItemsByDate from '../getItemsByDate'
 
 interface ExpesesListProps {
   expenses: any[]
@@ -13,36 +13,13 @@ const expensesByDate = ref({})
 watchEffect(() => {
   expensesByDate.value = getItemsByDate(props.expenses)
 })
-
-function getItemsByDate(items: any[]) {
-  if (items && items.length) {
-    const result = items.reduce((a: any, c: any) => {
-      if (a[c.date]) {
-        a[c.date].items.push(c)
-      } else {
-        a[c.date] = { items: [c] }
-      }
-      return a
-    }, {})
-    return result
-  }
-  return []
-}
-
-function customFormatDate(date: string) {
-  const d = parseISO(date)
-  const now = new Date()
-  const diff = differenceInDays(now, d)
-  if (diff > 7) return format(d, 'dd MMM')
-  return format(d, 'EEE')
-}
 </script>
 
 <template>
   <h3>Histórico</h3>
   <div :class="$style.expenses">
     <div v-for="date in Object.keys(expensesByDate)" :key="date">
-      <div :class="$style.date">{{ customFormatDate(date) }}</div>
+      <div :class="$style.date">{{ relativeDateFormat(date) }}</div>
       <div
         v-for="expense in expensesByDate[date].items"
         :key="expense.id"

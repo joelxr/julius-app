@@ -4,12 +4,13 @@ import { useExpenseStore } from '../stores/expense'
 import { useProductStore } from '../stores/product'
 import BaseButton from '../components/BaseButton.vue'
 import ListView from '../components/ListView.vue'
+import ExpensesList from '../components/ExpensesList.vue'
 import VueFeather from 'vue-feather'
-import { parseISO, format } from 'date-fns'
+import { parseISO, format, differenceInDays } from 'date-fns'
+import { money } from '../formatters'
 
 const router = useRouter()
 const expenseStore = useExpenseStore()
-const productStore = useProductStore()
 
 await expenseStore.find()
 
@@ -29,15 +30,36 @@ function handleSearch(name: string) {
   }
 }
 
-const formatDate = format
+function getItemsByDate(items: any[]) {
+  if (items && items.length) {
+    const result = items.reduce((a: any, c: any) => {
+      if (a[c.date]) {
+        a[c.date].items.push(c)
+      } else {
+        a[c.date] = { items: [c] }
+      }
+      return a
+    }, {})
+    return result
+  }
+  return []
+}
+
+function customFormatDate(date: string) {
+  const d = parseISO(date)
+  const now = new Date()
+  const diff = differenceInDays(now, d)
+  if (diff > 7) return format(d, 'dd MMM')
+  return format(d, 'EEE')
+}
 </script>
 
 <template>
   <div :class="$style.content">
     <section :class="$style.left">
       <ListView
+        aggregate-by-date
         :items="expenseStore.expenses"
-        style="width: 300px"
         @search="handleSearch"
         @new="handleNew"
         @selected="handleSelected"
@@ -48,17 +70,11 @@ const formatDate = format
               {{ itemProps.product[0].name }}
             </div>
             <div>
-              <vue-feather type="dollar-sign" size="12px" />
               {{
-                (
-                  itemProps.count * itemProps.unitPrice -
-                  itemProps.discount
-                ).toFixed(2)
+                money.format(
+                  itemProps.count * itemProps.unitPrice - itemProps.discount
+                )
               }}
-            </div>
-            <div>
-              <vue-feather type="calendar" size="12px" />
-              {{ formatDate(parseISO(itemProps.date), 'dd/MM/yyyy') }}
             </div>
           </div>
         </template>

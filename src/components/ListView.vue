@@ -1,14 +1,25 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watchEffect } from 'vue'
 import BaseButton from '../components/BaseButton.vue'
 import BaseTextInput from '../components/BaseTextInput.vue'
+import getItemsByDate from '../getItemsByDate'
+import { relativeDateFormat } from '../formatters'
 
 interface ListViewProps {
   items: any[]
+  aggregateByDate?: boolean
 }
 
 const props = defineProps<ListViewProps>()
 const emit = defineEmits(['selected', 'new', 'search'])
+
+const itemsByDate = ref([])
+
+watchEffect(() => {
+  if (props.aggregateByDate) {
+    itemsByDate.value = getItemsByDate(props.items)
+  }
+})
 </script>
 
 <template>
@@ -20,7 +31,20 @@ const emit = defineEmits(['selected', 'new', 'search'])
         @input="emit('search', $event.target.value)"
       />
     </div>
-    <div :class="$style.list">
+    <div v-if="aggregateByDate" :class="$style.list">
+      <div v-for="date in Object.keys(itemsByDate)" :key="date">
+        <div :class="$style.date">{{ relativeDateFormat(date) }}</div>
+        <div
+          v-for="(item, index) in itemsByDate[date].items"
+          :key="index"
+          :class="$style.listItem"
+          @click="$emit('selected', item)"
+        >
+          <slot name="item" v-bind="item" />
+        </div>
+      </div>
+    </div>
+    <div v-else :class="$style.list">
       <div
         v-for="(item, index) in props.items"
         :key="index"
@@ -58,6 +82,12 @@ const emit = defineEmits(['selected', 'new', 'search'])
     height: calc(100% - $inner-menu-height - $inner-menu-height - 10px);
     padding: $gap;
     overflow-y: auto;
+
+    .date {
+      margin: $gap;
+      color: #888;
+      text-transform: uppercase;
+    }
 
     .listItem {
       padding: $gap calc($gap * 2);
