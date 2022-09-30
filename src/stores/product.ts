@@ -1,18 +1,35 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
-import { useCrud, useInsights, api } from '../api'
+import { useCrud } from '../api'
+import { useFilterStore } from '../stores/filter'
 
-const productsService = { ...useCrud('products'), ...useInsights('products') }
+const filterStore = useFilterStore()
+const productsService = useCrud('products')
 const productTagsService = useCrud('product-tags')
 
 export const useProductStore = defineStore('product', () => {
   const products = ref([])
   const selectedProductTags = ref([])
 
-  async function find(query = {}) {
+  filterStore.$subscribe((mutation, state) => {
+    find()
+  })
+
+  async function find(query = { orderBy: {} }) {
     const { data } = await productsService.find({
       ...query,
-      orderBy: [{ column: 'name' }, { column: 'id' }],
+      start: filterStore.startDate,
+      end: filterStore.endDate,
+      orderBy: [
+        ...Object.keys(query.orderBy)
+          .filter((column) => !!query.orderBy[column])
+          .map((column) => {
+            return {
+              column,
+              order: query.orderBy[column],
+            }
+          }),
+      ],
     })
 
     products.value = data
@@ -28,14 +45,6 @@ export const useProductStore = defineStore('product', () => {
 
   function remove(data: any) {
     return productsService.remove(data.id)
-  }
-
-  function insights(id: number) {
-    return productsService.insights(id)
-  }
-
-  function expenses(id: number) {
-    return api.get(`products/${id}/expenses`)
   }
 
   async function getTagsByProduct(productId: number) {
@@ -63,8 +72,6 @@ export const useProductStore = defineStore('product', () => {
     findOne,
     upsert,
     remove,
-    insights,
-    expenses,
     addTag,
     removeTag,
     getTagsByProduct,

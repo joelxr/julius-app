@@ -1,18 +1,21 @@
 <script setup lang="ts">
-import { useRouter, ref } from 'vue-router'
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useExpenseStore } from '../stores/expense'
-import { useProductStore } from '../stores/product'
 import BaseButton from '../components/BaseButton.vue'
 import ListView from '../components/ListView.vue'
 import ExpensesList from '../components/ExpensesList.vue'
 import VueFeather from 'vue-feather'
-import { parseISO, format, differenceInDays } from 'date-fns'
 import { money } from '../formatters'
 
 const router = useRouter()
 const expenseStore = useExpenseStore()
+const orderBy = ref({
+  date: 'desc',
+  total: '',
+})
 
-await expenseStore.find()
+await expenseStore.find({ orderBy: orderBy.value })
 
 function handleNew() {
   router.push({ name: 'expense-detail' })
@@ -24,33 +27,15 @@ function handleSelected(item: any) {
 
 function handleSearch(name: string) {
   if (name) {
-    expenseStore.find({ name })
+    expenseStore.find({ name, orderBy: orderBy.value })
   } else {
-    expenseStore.find()
+    expenseStore.find({ orderBy: orderBy.value })
   }
 }
 
-function getItemsByDate(items: any[]) {
-  if (items && items.length) {
-    const result = items.reduce((a: any, c: any) => {
-      if (a[c.date]) {
-        a[c.date].items.push(c)
-      } else {
-        a[c.date] = { items: [c] }
-      }
-      return a
-    }, {})
-    return result
-  }
-  return []
-}
-
-function customFormatDate(date: string) {
-  const d = parseISO(date)
-  const now = new Date()
-  const diff = differenceInDays(now, d)
-  if (diff > 7) return format(d, 'dd MMM')
-  return format(d, 'EEE')
+function handleOrderUpdated(event: any) {
+  orderBy.value[event.column] = event.order
+  expenseStore.find({ orderBy: orderBy.value })
 }
 </script>
 
@@ -60,6 +45,8 @@ function customFormatDate(date: string) {
       <ListView
         aggregate-by-date
         :items="expenseStore.expenses"
+        :order-by="orderBy"
+        @order-updated="handleOrderUpdated"
         @search="handleSearch"
         @new="handleNew"
         @selected="handleSelected"
@@ -70,11 +57,7 @@ function customFormatDate(date: string) {
               {{ itemProps.product[0].name }}
             </div>
             <div>
-              {{
-                money.format(
-                  itemProps.count * itemProps.unitPrice - itemProps.discount
-                )
-              }}
+              {{ money.format(itemProps.total) }}
             </div>
           </div>
         </template>
@@ -103,12 +86,6 @@ function customFormatDate(date: string) {
 
   .left {
     width: $side-menu-width;
-
-    .listItem {
-      .title {
-        font-size: 1.1rem;
-      }
-    }
   }
 
   .right {

@@ -21,7 +21,6 @@ const tagId = Number(route.params.id)
 if (tagId) {
   const result = await store.findOne(tagId)
   tag.value = result.data
-  tag.value.total = tag.value.subtotal - tag.value.discount
 }
 
 async function save() {

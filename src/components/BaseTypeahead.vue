@@ -50,6 +50,18 @@ onDeactivated(() => {
 const items: Ref<string[]> = ref([])
 const searching: Ref<boolean> = ref(false)
 
+window.onclick = (e: any) => {
+  if (
+    !(
+      dropdown.value.contains(e.target) ||
+      input.value.contains(e.target) ||
+      input.value === e.target
+    )
+  ) {
+    searching.value = false
+  }
+}
+
 async function handleInput(event: any) {
   text.value = event.target.value
 

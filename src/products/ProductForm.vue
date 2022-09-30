@@ -30,7 +30,6 @@ async function loadProduct(id: number) {
   if (id) {
     const { data } = await productStore.findOne(id)
     product.value = data
-    product.value.total = product.value.subtotal - product.value.discount
     const response = await productStore.getTagsByProduct(id)
     productStore.selectedProductTags.value = response.data
   }

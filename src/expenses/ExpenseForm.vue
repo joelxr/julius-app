@@ -44,7 +44,6 @@ watchEffect(() => {
 async function loadExpense(expenseId: number) {
   if (expenseId) {
     const { data } = await expenseStore.findOne(expenseId)
-    console.log(data)
     expense.value = {
       ...data,
       date: formatISO9075(parseISO(data.date)),

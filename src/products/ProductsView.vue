@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useProductStore } from '../stores/product'
 import { money } from '../formatters'
@@ -8,8 +9,12 @@ import VueFeather from 'vue-feather'
 
 const router = useRouter()
 const store = useProductStore()
+const orderBy = ref({
+  name: 'asc',
+  total: '',
+})
 
-await store.find()
+await store.find({ orderBy: orderBy.value })
 
 function handleNew() {
   router.push({ name: 'product-detail' })
@@ -21,10 +26,15 @@ function handleSelected(item: any) {
 
 function handleSearch(name: string) {
   if (name) {
-    store.find({ name })
+    store.find({ name, orderBy: orderBy.value })
   } else {
-    store.find()
+    store.find({ orderBy: orderBy.value })
   }
+}
+
+function handleOrderUpdated(event: any) {
+  orderBy.value[event.column] = event.order
+  store.find({ orderBy: orderBy.value })
 }
 </script>
 
@@ -33,9 +43,11 @@ function handleSearch(name: string) {
     <section :class="$style.left">
       <ListView
         :items="store.products"
+        :order-by="orderBy"
         @search="handleSearch"
         @new="handleNew"
         @selected="handleSelected"
+        @order-updated="handleOrderUpdated"
       >
         <template #item="itemProps">
           <div>
@@ -43,7 +55,7 @@ function handleSearch(name: string) {
               {{ itemProps.name }}
             </div>
             <div>
-              {{ money.format(itemProps.subtotal - itemProps.discount) }}
+              {{ money.format(itemProps.total) }}
             </div>
           </div>
         </template>

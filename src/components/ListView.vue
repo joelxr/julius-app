@@ -2,16 +2,21 @@
 import { ref, watchEffect } from 'vue'
 import BaseButton from '../components/BaseButton.vue'
 import BaseTextInput from '../components/BaseTextInput.vue'
+import SortingSelect from '../components/SortingSelect.vue'
 import getItemsByDate from '../getItemsByDate'
 import { relativeDateFormat } from '../formatters'
 
 interface ListViewProps {
   items: any[]
   aggregateByDate?: boolean
+  orderBy?: any
 }
 
-const props = defineProps<ListViewProps>()
-const emit = defineEmits(['selected', 'new', 'search'])
+const props = withDefaults(defineProps<ListViewProps>(), {
+  aggregateByDate: false,
+  orderBy: () => [{ column: 'name', order: 'asc' }],
+})
+const emit = defineEmits(['selected', 'new', 'search', 'orderUpdated'])
 
 const itemsByDate = ref([])
 
@@ -29,6 +34,10 @@ watchEffect(() => {
         placeholder="Buscar"
         style="width: 100%; border-radius: 0"
         @input="emit('search', $event.target.value)"
+      />
+      <SortingSelect
+        :options="orderBy"
+        @order-updated="$emit('orderUpdated', $event)"
       />
     </div>
     <div v-if="aggregateByDate" :class="$style.list">
@@ -74,7 +83,7 @@ watchEffect(() => {
 
   .controls {
     display: flex;
-    height: $inner-menu-height;
+    flex-flow: row nowrap;
   }
 
   .list {
