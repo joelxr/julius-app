@@ -1,3 +1,8 @@
 @import 'colors';
 @import 'fonts';
 @import 'shadows';
+@import 'spacing';
+
+body {
+  background: $color-bg-base;
+}

@@ -10,7 +10,7 @@ const props = defineProps<BaseButtonProps>()
 
 <template>
   <button type="button" :class="$style.btn" v-bind="$attrs">
-    <vue-feather v-if="props.icon" :type="props.icon"></vue-feather>
+    <vue-feather v-if="props.icon" :type="props.icon" size="20px"></vue-feather>
     <slot />
   </button>
 </template>
@@ -19,14 +19,23 @@ const props = defineProps<BaseButtonProps>()
 @import '../design';
 
 .btn {
-  padding: 0.4rem 1.2rem 0.2rem;
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 0.4rem;
+  align-items: center;
+  justify-content: center;
+  padding: 0.4rem 1.4rem 0.3rem;
   font-size: 1rem;
   font-weight: 600;
   color: $text-color;
   cursor: pointer;
   background-color: $color-bg-primary;
   border: none;
-  border-radius: 6px;
+  border-radius: $gap;
   box-shadow: $default-shadow;
+
+  &:hover {
+    background-color: $blue;
+  }
 }
 </style>

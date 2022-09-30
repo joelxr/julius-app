@@ -1,24 +1,60 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted, onDeactivated, watchEffect } from 'vue'
 import type { Ref } from 'vue'
+import { computePosition, autoUpdate } from '@floating-ui/dom'
 
 interface BaseTypeaheadProps {
-  modelValue: string
+  modelValue: any
+  modelDisplayProp?: string
   fetch: (text: string) => Promise<string[]>
 }
 
-const props = defineProps<BaseTypeaheadProps>()
+const props = withDefaults(defineProps<BaseTypeaheadProps>(), {
+  modelDisplayProp: 'name',
+})
 const emit = defineEmits(['update:modelValue'])
+const input = ref()
+const dropdown = ref()
+const text = ref('')
+
+let cleanUp: any
+
+watchEffect(() => {
+  if (props.modelValue[props.modelDisplayProp]) {
+    text.value = props.modelValue[props.modelDisplayProp]
+  }
+})
+
+onMounted(() => {
+  function applyStyles({ x = 0, y = 0, strategy = 'absolute' } = {}) {
+    Object.assign(dropdown.value.style, {
+      position: strategy,
+      left: `${x}px`,
+      top: `${y}px`,
+    })
+  }
+
+  applyStyles()
+
+  cleanUp = autoUpdate(input.value, dropdown.value, () => {
+    computePosition(input.value, dropdown.value, {
+      placement: 'bottom-start',
+    }).then(applyStyles)
+  })
+})
+
+onDeactivated(() => {
+  cleanUp()
+})
 
 const items: Ref<string[]> = ref([])
 const searching: Ref<boolean> = ref(false)
 
 async function handleInput(event: any) {
-  const text = event.target.value
-  emit('update:modelValue', text)
+  text.value = event.target.value
 
-  if (text) {
-    items.value = await props.fetch(text)
+  if (text.value) {
+    items.value = await props.fetch(text.value)
     searching.value = !!items.value.length
   } else {
     items.value = []
@@ -26,8 +62,9 @@ async function handleInput(event: any) {
   }
 }
 
-function handleClickItem(item: string) {
+function handleClickItem(item: any) {
   emit('update:modelValue', item)
+  text.value = item[props.modelDisplayProp]
   items.value = []
   searching.value = false
 }
@@ -35,19 +72,24 @@ function handleClickItem(item: string) {
 
 <template>
   <input
+    ref="input"
     type="text"
     :class="$style.input"
-    :value="modelValue"
+    :value="text"
+    v-bind="$attrs"
     @input="handleInput"
   />
-  <div :class="[$style.dropdown, searching ? $style.active : '']">
+  <div
+    ref="dropdown"
+    :class="[$style.dropdown, searching ? $style.active : '']"
+  >
     <div
       v-for="(item, index) in items"
       :key="index"
       :class="$style.dropdownItem"
       @click="handleClickItem(item)"
     >
-      {{ item }}
+      {{ item[props.modelDisplayProp] }}
     </div>
   </div>
 </template>
@@ -67,7 +109,6 @@ function handleClickItem(item: string) {
 }
 
 .dropdown {
-  position: absolute;
   z-index: 5;
   display: none;
   padding: 0;
@@ -86,7 +127,7 @@ function handleClickItem(item: string) {
     cursor: pointer;
 
     &:hover {
-      background-color: #3584e4;
+      background-color: $blue;
     }
   }
 }

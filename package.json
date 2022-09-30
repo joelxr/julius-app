@@ -56,8 +56,14 @@
     }
   },
   "dependencies": {
+    "@floating-ui/core": "^1.0.1",
+    "@floating-ui/dom": "^1.0.2",
+    "@vuepic/vue-datepicker": "^3.4.8",
+    "axios": "^0.27.2",
+    "date-fns": "^2.29.3",
     "feather-icons": "4",
     "normalize.css": "^8.0.1",
+    "pinia": "^2.0.22",
     "vue-feather": "2",
     "vue-router": "4"
   }

@@ -1,24 +1,28 @@
 <script setup lang="ts">
 import VueFeather from 'vue-feather'
-import DateSelect from '../components/DateSelect.vue'
+import GlobalFilter from '../components/GlobalFilter.vue'
+
+import { useFilterStore } from '../stores/filter'
+
+const filterStore = useFilterStore()
 </script>
 
 <template>
   <nav :class="$style.menu">
     <router-link :exact-active-class="$style.exactActiveLink" to="/expenses">
-      <vue-feather type="shopping-cart"></vue-feather>
+      <vue-feather type="shopping-cart" size="20px"></vue-feather>
       Despesas
     </router-link>
     <router-link :exact-active-class="$style.exactActiveLink" to="/products">
-      <vue-feather type="shopping-bag"></vue-feather>
+      <vue-feather type="shopping-bag" size="20px"></vue-feather>
       Produtos
     </router-link>
     <router-link :exact-active-class="$style.exactActiveLink" to="/tags">
-      <vue-feather type="tag"></vue-feather>
+      <vue-feather type="tag" size="20px"></vue-feather>
       Tags
     </router-link>
-    <div :class="$style.dateSelector">
-      <DateSelect />
+    <div :class="$style.globalFilter">
+      <GlobalFilter />
     </div>
   </nav>
 </template>
@@ -27,20 +31,25 @@ import DateSelect from '../components/DateSelect.vue'
 @import '../design';
 
 .menu {
+  position: fixed;
+  top: 0;
+  left: 0;
   display: flex;
   flex-flow: row nowrap;
-  gap: 1rem;
+  gap: calc($gap / 2);
   align-items: center;
   justify-content: center;
-  padding: 0.5rem;
-  margin-bottom: 0.5rem;
+  width: 100%;
+  height: $top-menu-height;
+  padding: 0 $gap;
+  background-color: $color-bg-base;
   border-bottom: 2px solid $color-bg-primary;
 
   a {
     display: flex;
-    gap: 0.6rem;
+    gap: $gap;
     align-items: center;
-    padding: 0.6rem 1.8rem;
+    padding: $gap 1rem;
     font-weight: 600;
     color: $text-color;
     text-decoration: none;
@@ -49,14 +58,14 @@ import DateSelect from '../components/DateSelect.vue'
     &.exactActiveLink,
     &:hover {
       background-color: $color-bg-primary;
-      border-radius: 6px;
+      border-radius: $border-radius;
       box-shadow: $default-shadow;
     }
   }
 
-  .dateSelector {
+  .globalFilter {
+    padding: $gap 1rem;
     margin-left: auto;
-    padding: 0.6rem 1.8rem;
   }
 }
 </style>

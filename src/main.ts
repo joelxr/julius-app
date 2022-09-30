@@ -1,26 +1,45 @@
 import { createApp } from 'vue'
 import { createRouter, createWebHashHistory } from 'vue-router'
+import { createPinia } from 'pinia'
 import App from './App.vue'
-import TagView from './tags/TagView.vue'
-import ProductView from './products/ProductsView.vue'
-import ExpensesView from './expenses/ExpensesView.vue'
-import ExpenseForm from './expenses/ExpenseForm.vue'
 
 const routes = [
   {
     path: '/expenses',
     name: 'expenses',
-    component: ExpensesView,
+    component: () => import('./expenses/ExpensesView.vue'),
     children: [
       {
         path: 'detail/:id?',
         name: 'expense-detail',
-        component: ExpenseForm,
+        component: () => import('./expenses/ExpenseForm.vue'),
       },
     ],
   },
-  { path: '/tags', name: 'tags', component: TagView },
-  { path: '/products', name: 'products', component: ProductView },
+  {
+    path: '/tags',
+    name: 'tags',
+    component: () => import('./tags/TagView.vue'),
+    children: [
+      {
+        path: 'detail/:id?',
+        name: 'tag-detail',
+        component: () => import('./tags/TagForm.vue'),
+      },
+    ],
+  },
+  {
+    path: '/products',
+    name: 'products',
+    component: () => import('./products/ProductsView.vue'),
+    children: [
+      {
+        path: 'detail/:id?',
+        name: 'product-detail',
+        component: () => import('./products/ProductForm.vue'),
+      },
+    ],
+  },
 ]
 
 const router = createRouter({
@@ -30,6 +49,7 @@ const router = createRouter({
 
 createApp(App)
   .use(router)
+  .use(createPinia())
   .mount('#app')
   .$nextTick(() => {
     postMessage({ payload: 'removeLoading' }, '*')
