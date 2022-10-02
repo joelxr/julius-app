@@ -1,10 +1,13 @@
 import axios from 'axios'
 
+const apiKey = process.env.API_KEY || ''
+
 export const api = axios.create({
   baseURL: 'http://localhost:8091',
   timeout: 3000,
   headers: {
     'Content-Type': 'application/json',
+    'api-key': apiKey,
   },
 })
 
