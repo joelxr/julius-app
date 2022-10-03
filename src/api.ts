@@ -1,13 +1,19 @@
 import axios from 'axios'
 
-const apiKey = process.env.API_KEY || ''
+const { API_KEY, API_URL } = process.env
+
+if (!API_KEY || !API_URL) {
+  throw new Error(`API_KEY and API_URL must be defined`)
+}
+
+console.log(API_URL)
 
 export const api = axios.create({
-  baseURL: 'http://localhost:8091',
+  baseURL: API_URL,
   timeout: 3000,
   headers: {
     'Content-Type': 'application/json',
-    'api-key': apiKey,
+    'api-key': API_KEY,
   },
 })
 
