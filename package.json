@@ -1,5 +1,8 @@
 {
   "name": "@julius/app",
+  "productName": "Julius",
+  "description": "An app to track your expenses",
+  "author": "Joel Rocha <joelxr@gmail.com>",
   "version": "1.0.0",
   "main": "dist/electron/main/index.js",
   "private": true,
@@ -12,7 +15,10 @@
     "lint:all:stylelint": "yarn lint:stylelint \"src/**/*.{vue,scss}\"",
     "lint:all:prettier": "yarn lint:prettier \"**/*.{js,json,css,scss,vue,html,md}\"",
     "lint": "run-s lint:all:*",
-    "build": "vue-tsc --noEmit && vite build && electron-builder"
+    "build:src": "vue-tsc --noEmit; vite build",
+    "build:linux": "electron-packager . --overwrite --platform=linux --arch=x64 --prune=true --out=release",
+    "build:win32": "electron-packager . --overwrite --platform=win32 --arch=x64 --prune=true --out=release",
+    "build": "run-s build:*"
   },
   "engines": {
     "node": "^14.18.0 || >=16.0.0"
@@ -24,6 +30,7 @@
     "@vue/eslint-config-typescript": "^11.0.1",
     "electron": "^20.0.2",
     "electron-builder": "^23.3.3",
+    "electron-packager": "^16.0.0",
     "eslint": "^8.23.1",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-prettier": "^4.2.1",

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import type { Ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useProductStore } from '../stores/product'
 import { money } from '../formatters'
@@ -9,7 +10,7 @@ import VueFeather from 'vue-feather'
 
 const router = useRouter()
 const store = useProductStore()
-const orderBy = ref({
+const orderBy: Ref<any> = ref({
   name: 'asc',
   total: '',
 })

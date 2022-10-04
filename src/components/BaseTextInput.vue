@@ -2,7 +2,7 @@
 import VueFeather from 'vue-feather'
 
 interface BaseTextInputProps {
-  modelValue?: string | number | Date
+  modelValue?: string | number | Date | null
   type?: string
   theme?: string
   icon?: string

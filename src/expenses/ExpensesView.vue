@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import type { Ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useExpenseStore } from '../stores/expense'
 import BaseButton from '../components/BaseButton.vue'
@@ -10,7 +11,7 @@ import { money } from '../formatters'
 
 const router = useRouter()
 const expenseStore = useExpenseStore()
-const orderBy = ref({
+const orderBy: Ref<any> = ref({
   date: 'desc',
   total: '',
 })

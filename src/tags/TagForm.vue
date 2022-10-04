@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import type { Ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import BaseTextInput from '../components/BaseTextInput.vue'
 import BaseButton from '../components/BaseButton.vue'
 import BaseOverview from '../components/BaseOverview.vue'
 import ExpensesList from '../components/ExpensesList.vue'
 import { useTagStore } from '../stores/tag'
-import { differenceInDays, parseISO } from 'date-fns'
 import getFrequency from '../getFrequency'
 
-const tag = ref({
+const tag: Ref<any> = ref({
   name: '',
 })
 
@@ -24,16 +24,19 @@ if (tagId) {
 }
 
 async function save() {
-  const { data } = await store.upsert(
+  const { data }: any = await store.upsert(
     tag.value.id
       ? { id: tag.value.id, name: tag.value.name }
       : { name: tag.value.name }
   )
+
   await store.find()
+
   tag.value = {
     ...tag.value,
     id: data[0].id,
   }
+
   router.push({ name: 'tag-detail', params: { id: data[0].id } })
 }
 

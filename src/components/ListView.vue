@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, watchEffect } from 'vue'
+import type { Ref } from 'vue'
 import BaseButton from '../components/BaseButton.vue'
 import BaseTextInput from '../components/BaseTextInput.vue'
 import SortingSelect from '../components/SortingSelect.vue'
@@ -18,13 +19,17 @@ const props = withDefaults(defineProps<ListViewProps>(), {
 })
 const emit = defineEmits(['selected', 'new', 'search', 'orderUpdated'])
 
-const itemsByDate = ref([])
+const itemsByDate: Ref<any> = ref([])
 
 watchEffect(() => {
   if (props.aggregateByDate) {
     itemsByDate.value = getItemsByDate(props.items)
   }
 })
+
+function handleInput(event: any) {
+  emit('search', event.target.value)
+}
 </script>
 
 <template>
@@ -33,7 +38,7 @@ watchEffect(() => {
       <BaseTextInput
         placeholder="Buscar"
         style="width: 100%; border-radius: 0"
-        @input="emit('search', $event.target.value)"
+        @input="handleInput"
       />
       <SortingSelect
         :options="orderBy"

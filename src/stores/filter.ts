@@ -5,8 +5,8 @@ import { addMonths } from 'date-fns'
 
 export const useFilterStore = defineStore('filter', () => {
   const now = new Date()
-  const startDate: Ref<Date> = ref(now)
-  const endDate: Ref<Date> = ref(addMonths(now, 1))
+  const startDate: Ref<Date | null> = ref(now)
+  const endDate: Ref<Date | null> = ref(addMonths(now, 1))
 
   return { startDate, endDate }
 })

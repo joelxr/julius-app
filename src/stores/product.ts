@@ -1,35 +1,28 @@
 import { ref } from 'vue'
+import type { Ref } from 'vue'
 import { defineStore } from 'pinia'
 import { useCrud } from '../api'
 import { useFilterStore } from '../stores/filter'
+import getOrderByParamFromQuery from '../getOrderByParamFromQuery'
 
 const filterStore = useFilterStore()
 const productsService = useCrud('products')
 const productTagsService = useCrud('product-tags')
 
 export const useProductStore = defineStore('product', () => {
-  const products = ref([])
-  const selectedProductTags = ref([])
+  const products: Ref<any> = ref([])
+  const selectedProductTags: Ref<any> = ref([])
 
   filterStore.$subscribe((mutation, state) => {
     find()
   })
 
-  async function find(query = { orderBy: {} }) {
+  async function find(query?: any) {
     const { data } = await productsService.find({
       ...query,
       start: filterStore.startDate,
       end: filterStore.endDate,
-      orderBy: [
-        ...Object.keys(query.orderBy)
-          .filter((column) => !!query.orderBy[column])
-          .map((column) => {
-            return {
-              column,
-              order: query.orderBy[column],
-            }
-          }),
-      ],
+      orderBy: getOrderByParamFromQuery(query.orderBy || {}),
     })
 
     products.value = data

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, watchEffect } from 'vue'
+import type { Ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { parseISO, formatISO9075 } from 'date-fns'
 import { useProductStore } from '../stores/product'
@@ -8,7 +9,7 @@ import BaseTextInput from '../components/BaseTextInput.vue'
 import BaseButton from '../components/BaseButton.vue'
 import BaseTypeahead from '../components/BaseTypeahead.vue'
 
-const expense = ref({
+const expense: Ref<any> = ref({
   date: null,
   productId: null,
   count: null,
@@ -21,8 +22,8 @@ const expense = ref({
   partTotal: null,
 })
 
-const selectedProduct = ref({})
-const total = ref()
+const selectedProduct: Ref<any> = ref({})
+const total: Ref<string> = ref('')
 
 const productStore = useProductStore()
 const expenseStore = useExpenseStore()
@@ -36,14 +37,14 @@ watchEffect(() => {
   if (expense.value.count && expense.value.unitPrice) {
     total.value = (
       expense.value.count * expense.value.unitPrice -
-      expense.value.discount
+      (expense.value.discount || 0)
     ).toFixed(2)
   }
 })
 
 async function loadExpense(expenseId: number) {
   if (expenseId) {
-    const { data } = await expenseStore.findOne(expenseId)
+    const { data }: any = await expenseStore.findOne(expenseId)
     expense.value = {
       ...data,
       date: formatISO9075(parseISO(data.date)),

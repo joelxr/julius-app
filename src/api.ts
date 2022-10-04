@@ -1,6 +1,7 @@
 import axios from 'axios'
+import config from './config'
 
-const { API_KEY, API_URL } = process.env
+const { API_KEY, API_URL } = config
 
 if (!API_KEY || !API_URL) {
   throw new Error(`API_KEY and API_URL must be defined`)

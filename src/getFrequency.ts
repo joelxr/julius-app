@@ -13,7 +13,7 @@ export default function getFrequency(items: any[]) {
         }
         return a
       }, [])
-      .reduce((a, c, _, arr) => {
+      .reduce((a: number, c: number, i: number, arr: any[]) => {
         return a + c / arr.length
       }, 0)
     return result

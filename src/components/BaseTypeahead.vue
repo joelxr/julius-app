@@ -47,7 +47,7 @@ onDeactivated(() => {
   cleanUp()
 })
 
-const items: Ref<string[]> = ref([])
+const items: Ref<any[]> = ref([])
 const searching: Ref<boolean> = ref(false)
 
 window.onclick = (e: any) => {

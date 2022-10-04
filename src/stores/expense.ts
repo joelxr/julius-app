@@ -1,33 +1,26 @@
 import { ref } from 'vue'
+import type { Ref } from 'vue'
 import { defineStore } from 'pinia'
 import { useCrud } from '../api'
 import { useFilterStore } from '../stores/filter'
+import getOrderByParamFromQuery from '../getOrderByParamFromQuery'
 
 const filterStore = useFilterStore()
 const expenseService = useCrud('expenses')
 
 export const useExpenseStore = defineStore('expense', () => {
-  const expenses = ref([])
+  const expenses: Ref<any> = ref([])
 
   filterStore.$subscribe((mutation, state) => {
     find()
   })
 
-  async function find(query = { orderBy: {} }) {
+  async function find(query?: any) {
     const { data } = await expenseService.find({
       ...query,
       start: filterStore.startDate,
       end: filterStore.endDate,
-      orderBy: [
-        ...Object.keys(query.orderBy)
-          .filter((column) => !!query.orderBy[column])
-          .map((column) => {
-            return {
-              column,
-              order: query.orderBy[column],
-            }
-          }),
-      ],
+      orderBy: getOrderByParamFromQuery(query.orderBy || {}),
     })
 
     expenses.value = data

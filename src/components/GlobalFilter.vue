@@ -6,7 +6,7 @@ import { useFilterStore } from '../stores/filter'
 
 const store = useFilterStore()
 
-const data = ref({
+const data: Ref<any> = ref({
   year: '2022',
   month: '9',
   day: '',

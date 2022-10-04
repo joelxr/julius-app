@@ -3,10 +3,11 @@ import type { Ref } from 'vue'
 import { defineStore } from 'pinia'
 import { useCrud } from '../api'
 import { useFilterStore } from '../stores/filter'
+import getOrderByParamFromQuery from '../getOrderByParamFromQuery'
 
 interface Tag {
   id: number
-  name: number
+  name: string
 }
 
 const tagsService = useCrud<Tag>('tags')
@@ -19,21 +20,12 @@ export const useTagStore = defineStore('tag', () => {
     find()
   })
 
-  async function find(query = { orderBy: {} }) {
+  async function find(query?: any) {
     const result = await tagsService.find({
       ...query,
       start: filterStore.startDate,
       end: filterStore.endDate,
-      orderBy: [
-        ...Object.keys(query.orderBy)
-          .filter((column) => !!query.orderBy[column])
-          .map((column) => {
-            return {
-              column,
-              order: query.orderBy[column],
-            }
-          }),
-      ],
+      orderBy: getOrderByParamFromQuery(query.orderBy || {}),
     })
     tags.value = result.data
   }

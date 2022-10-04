@@ -9,7 +9,7 @@ import VueFeather from 'vue-feather'
     <RouterView v-slot="{ Component, route }">
       <template v-if="Component">
         <Transition name="slide" mode="out-in">
-          <div :key="route.name" style="height: 100%">
+          <div :key="route.name || ''" style="height: 100%">
             <KeepAlive>
               <Suspense>
                 <component :is="Component"></component>

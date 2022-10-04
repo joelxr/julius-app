@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, h } from 'vue'
+import { ref } from 'vue'
 import type { Ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import BaseTextInput from '../components/BaseTextInput.vue'
@@ -36,7 +36,7 @@ async function loadProduct(id: number) {
 }
 
 async function save() {
-  const { data } = await productStore.upsert(
+  const { data }: any = await productStore.upsert(
     product.value.id
       ? { id: product.value.id, name: product.value.name }
       : { name: product.value.name }
@@ -55,8 +55,8 @@ async function remove() {
   router.push({ name: 'products' })
 }
 
-async function handleTagClicked(tag: any, checked: boolean) {
-  if (checked) {
+async function handleTagClicked(tag: any, target: any) {
+  if (target.checked) {
     const data = {
       productId: productId || product.value.id,
       tagId: tag.id,
@@ -100,29 +100,32 @@ async function handleTagClicked(tag: any, checked: boolean) {
       <div :class="$style.tags">
         <div
           v-for="tag in tagStore.tags"
-          :key="tag.id"
+          :key="tag.name"
           :class="[
             $style.tag,
-            !!productStore.selectedProductTags.find((pt) => pt.tagId === tag.id)
+            !!productStore.selectedProductTags.find((pt: any) => pt.tagId === tag.id)
               ? $style.selected
               : '',
           ]"
         >
           <input
-            :id="tag.id"
+            :id="tag.name"
             type="checkbox"
             :value="tag"
             :checked="
               !!productStore.selectedProductTags.find(
-                (pt) => pt.tagId === tag.id
+                (pt: any) => pt.tagId === tag.id
               )
             "
-            @click="handleTagClicked(tag, $event.target.checked)"
+            @click="handleTagClicked(tag, $event.target)"
           />
-          <label v-if="searchTag && tag.name.includes(searchTag)" :for="tag.id">
+          <label
+            v-if="searchTag && tag.name.includes(searchTag)"
+            :for="tag.name"
+          >
             <HighlightText :query="searchTag" :text="tag.name" />
           </label>
-          <label v-else :for="tag.id">
+          <label v-else :for="tag.name">
             {{ tag.name }}
           </label>
         </div>

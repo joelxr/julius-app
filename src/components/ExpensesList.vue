@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, watchEffect } from 'vue'
+import type { Ref } from 'vue'
 import { money, relativeDateFormat } from '../formatters'
 import getItemsByDate from '../getItemsByDate'
 
@@ -8,7 +9,7 @@ interface ExpesesListProps {
 }
 
 const props = defineProps<ExpesesListProps>()
-const expensesByDate = ref({})
+const expensesByDate: Ref<any> = ref({})
 
 watchEffect(() => {
   expensesByDate.value = getItemsByDate(props.expenses)
