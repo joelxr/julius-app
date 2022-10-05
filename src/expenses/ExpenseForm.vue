@@ -70,7 +70,7 @@ async function remove() {
 
 async function fetchProducts(text: string): Promise<string[]> {
   if (text) {
-    await productStore.find({ name })
+    await productStore.find({ name: text })
   } else {
     await productStore.find()
   }

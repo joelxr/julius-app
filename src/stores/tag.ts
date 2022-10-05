@@ -25,7 +25,7 @@ export const useTagStore = defineStore('tag', () => {
       ...query,
       start: filterStore.startDate,
       end: filterStore.endDate,
-      orderBy: getOrderByParamFromQuery(query.orderBy || {}),
+      orderBy: getOrderByParamFromQuery(query?.orderBy || {}),
     })
     tags.value = result.data
   }
