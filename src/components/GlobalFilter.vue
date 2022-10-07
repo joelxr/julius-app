@@ -1,95 +1,167 @@
 <script setup lang="ts">
-import { ref, watchEffect } from 'vue'
+import { ref, onMounted, onDeactivated } from 'vue'
 import type { Ref } from 'vue'
-import SelectInput from './SelectInput.vue'
+import { computePosition, autoUpdate } from '@floating-ui/dom'
+import VueFeather from 'vue-feather'
+import { parse, format } from 'date-fns'
+import { ptBR } from 'date-fns/locale'
 import { useFilterStore } from '../stores/filter'
+import { useExpenseStore } from '../stores/expense'
+import { money } from '../formatters'
 
-const store = useFilterStore()
+const filterStore = useFilterStore()
+const expenseStore = useExpenseStore()
+const input = ref()
+const dropdown = ref()
+const dateOptions: Ref<any> = ref()
 
-const data: Ref<any> = ref({
-  year: '2022',
-  month: '9',
-  day: '',
-})
+let cleanUp: any
 
-const years = [{ value: '' }, { value: '2022' }]
-const months = [
-  { value: '' },
-  ...[...Array(12).keys()].map((month) => ({ value: month + 1 })),
-]
-
-const days: Ref<any[]> = ref([])
-days.value = daysInMonth(data.value.month, data.value.year)
-
-watchEffect(() => {
-  const { year, month, day } = data.value
-
-  if (year && month) {
-    days.value = daysInMonth(month, year)
-  } else {
-    days.value = [{ value: '' }]
+onMounted(async () => {
+  function applyStyles({ x = 0, y = 0, strategy = 'absolute' } = {}) {
+    Object.assign(dropdown.value.style, {
+      position: strategy,
+      left: `${x}px`,
+      top: `${y}px`,
+    })
   }
 
-  if (year) {
-    if (month) {
-      if (day) {
-        const date = new Date(Number(year), Number(month) - 1, Number(day))
-        store.startDate = date
-        store.endDate = date
-      } else {
-        store.startDate = new Date(Number(year), Number(month) - 1, 1)
-        const lastDay = days.value[days.value.length - 1]
-        store.endDate = new Date(
-          Number(year),
-          Number(month) - 1,
-          Number(lastDay.value)
-        )
-      }
-    } else {
-      store.startDate = new Date(Number(year), 0, 1)
-      store.endDate = new Date(Number(year), 11, 31)
+  applyStyles()
+
+  cleanUp = autoUpdate(input.value, dropdown.value, () => {
+    computePosition(input.value, dropdown.value, {
+      placement: 'bottom-end',
+    }).then(applyStyles)
+  })
+
+  const { data } = await expenseStore.summary()
+  dateOptions.value = data
+})
+
+onDeactivated(() => {
+  cleanUp()
+})
+
+const selecting: Ref<boolean> = ref(false)
+
+window.onclick = (e: any) => {
+  if (dropdown.value && input.value) {
+    if (
+      !(
+        dropdown.value.contains(e.target) ||
+        input.value.contains(e.target) ||
+        input.value === e.target
+      )
+    ) {
+      selecting.value = false
     }
-  } else {
-    store.startDate = null
-    store.endDate = null
   }
-})
+}
 
-function daysInMonth(month: string, year: string): any[] {
-  const daysCount = new Date(Number(year), Number(month), 0).getDate()
-  return [
-    { value: '' },
-    ...[...Array(daysCount).keys()].map((month) => ({ value: month + 1 })),
-  ]
+function handleOptionClicked (ref: any) {
+  filterStore.startDate = ref.start
+  filterStore.endDate = ref.end
 }
 </script>
 
 <template>
-  <div :class="$style.btns">
-    <SelectInput
-      id="year"
-      v-model="data.year"
-      option-key="value"
-      :values="years"
-    />
-    <SelectInput
-      id="month"
-      v-model="data.month"
-      option-key="value"
-      :values="months"
-    />
-    <SelectInput
-      id="day"
-      v-model="data.day"
-      option-key="value"
-      :values="days"
-    />
+  <button ref="input" :class="$style.btn" @click="selecting = !selecting">
+    <vue-feather type="filter" size="20px"></vue-feather>
+  </button>
+  <div
+    ref="dropdown"
+    :class="[$style.dropdown, selecting ? $style.active : '']"
+  >
+    <div :class="$style.dateOptions">
+      <button
+        v-for="(option, index) in dateOptions"
+        :key="index"
+        :class="$style.option"
+        type="button"
+        @click="handleOptionClicked(option)"
+      >
+        <div :class="$style.ref">
+          {{
+            /\d{4}-\d{2}/g.test(option.ref)
+              ? format(parse(option.ref, 'yyyy-MM', Date.now()), 'MMMM', {
+                  locale: ptBR,
+                })
+              : option.ref
+          }}
+        </div>
+        <div :class="$style.total">
+          {{ money.format(option.total) }}
+        </div>
+      </button>
+    </div>
   </div>
 </template>
 
 <style lang="scss" module>
-.btns {
-  display: flex;
-  gap: 0.5rem;
+@import '../design';
+
+.btn {
+  font-weight: 600;
+  color: $text-color;
+  cursor: pointer;
+  background-color: $color-bg-base;
+  border: none;
+  transition: background-color 200ms;
+
+  &.exactActiveLink,
+  &:hover {
+    background-color: $color-bg-primary;
+    border-radius: $border-radius;
+    box-shadow: $default-shadow;
+  }
+}
+
+.dropdown {
+  z-index: 5;
+  display: none;
+  max-width: 300px;
+  padding: 0;
+  margin: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  color: white;
+  background-color: $color-bg-base;
+  border: 1px solid $color-bg-primary;
+  border-radius: $border-radius;
+  box-shadow: $default-shadow;
+
+  &.active {
+    display: inherit;
+  }
+
+  .dateOptions {
+    display: flex;
+    flex-flow: row wrap;
+    gap: $gap;
+    padding: 1rem;
+
+    .option {
+      padding: $gap;
+      font-weight: 600;
+      color: $text-color;
+      cursor: pointer;
+      background-color: $color-bg-primary;
+      border: none;
+      border-radius: 4px;
+      transition: background-color 200ms;
+
+      .ref {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+      }
+
+      &.exactActiveLink,
+      &:hover {
+        background-color: $blue;
+        border-radius: $border-radius;
+        box-shadow: $default-shadow;
+      }
+    }
+  }
 }
 </style>

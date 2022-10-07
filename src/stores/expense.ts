@@ -1,29 +1,31 @@
 import { ref } from 'vue'
 import type { Ref } from 'vue'
 import { defineStore } from 'pinia'
-import { useCrud } from '../api'
 import { useFilterStore } from '../stores/filter'
+import { useCrud, useSummary } from '../api'
 import getOrderByParamFromQuery from '../getOrderByParamFromQuery'
 
-const filterStore = useFilterStore()
-const expenseService = useCrud('expenses')
+const expenseService = { ...useCrud('expenses'), ...useSummary('expenses') }
 
 export const useExpenseStore = defineStore('expense', () => {
   const expenses: Ref<any> = ref([])
+
+  const filterStore = useFilterStore()
 
   filterStore.$subscribe((mutation, state) => {
     find()
   })
 
-  async function find(query?: any) {
+  async function find(query?: any, updateStore = true) {
     const { data } = await expenseService.find({
       ...query,
       start: filterStore.startDate,
       end: filterStore.endDate,
-      orderBy: getOrderByParamFromQuery(query.orderBy || {}),
+      orderBy: getOrderByParamFromQuery(query?.orderBy || {}),
     })
 
-    expenses.value = data
+    if (updateStore) expenses.value = data
+    else return data
   }
 
   function findOne(id: number) {
@@ -38,5 +40,9 @@ export const useExpenseStore = defineStore('expense', () => {
     return expenseService.remove(data.id)
   }
 
-  return { expenses, find, findOne, upsert, remove }
+  function summary() {
+    return expenseService.summary()
+  }
+
+  return { expenses, find, findOne, upsert, remove, summary }
 })
