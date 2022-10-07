@@ -49,6 +49,7 @@ import VueFeather from 'vue-feather'
   position: fixed;
   top: 70px;
   left: 0;
+  z-index: -1;
   width: 100%;
   height: calc(100% - 70px);
 }

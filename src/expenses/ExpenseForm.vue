@@ -8,6 +8,8 @@ import { useExpenseStore } from '../stores/expense'
 import BaseTextInput from '../components/BaseTextInput.vue'
 import BaseButton from '../components/BaseButton.vue'
 import BaseTypeahead from '../components/BaseTypeahead.vue'
+import { money } from '../formatters'
+import VueFeather from 'vue-feather'
 
 const expense: Ref<any> = ref({
   date: null,
@@ -23,6 +25,8 @@ const expense: Ref<any> = ref({
 })
 
 const selectedProduct: Ref<any> = ref({})
+const lastExpenseWithProduct: Ref<any> = ref({})
+const variation: Ref<number> = ref()
 const total: Ref<string> = ref('')
 
 const productStore = useProductStore()
@@ -35,10 +39,20 @@ loadExpense(Number(expenseId))
 
 watchEffect(() => {
   if (expense.value.count && expense.value.unitPrice) {
-    total.value = (
+    total.value = money.format(
       expense.value.count * expense.value.unitPrice -
-      (expense.value.discount || 0)
-    ).toFixed(2)
+        (expense.value.discount || 0)
+    )
+
+    if (lastExpenseWithProduct.value.unitPrice) {
+      variation.value =
+        (expense.value.unitPrice - lastExpenseWithProduct.value.unitPrice) /
+        expense.value.unitPrice
+    }
+  }
+
+  if (!expense.value.unitPrice) {
+    variation.value = 0
   }
 })
 
@@ -77,6 +91,16 @@ async function fetchProducts(text: string): Promise<string[]> {
 
   return Promise.resolve(productStore.products)
 }
+
+async function handleSelectedProduct(item) {
+  if (item) {
+    const expensesWithThisProduct: any = await expenseStore.find(
+      { productId: item.id },
+      false
+    )
+    lastExpenseWithProduct.value = expensesWithThisProduct.pop()
+  }
+}
 </script>
 
 <template>
@@ -85,6 +109,7 @@ async function fetchProducts(text: string): Promise<string[]> {
     :class="$style.titleInput"
     :fetch="fetchProducts"
     placeholder="Produto"
+    @update:model-value="handleSelectedProduct"
   />
   <div :class="$style.subtitle">
     <BaseTextInput
@@ -100,11 +125,27 @@ async function fetchProducts(text: string): Promise<string[]> {
     <label>Quantidade</label>
     <BaseTextInput v-model="expense.count" type="number" />
     <label>Valor unitário</label>
-    <BaseTextInput v-model="expense.unitPrice" type="number" />
+    <div>
+      <BaseTextInput v-model="expense.unitPrice" type="number" />
+      <div
+        v-if="variation"
+        :class="[
+          $style.variation,
+          variation > 0 ? $style.positive : $style.negative,
+        ]"
+      >
+        <vue-feather
+          :type="variation > 0 ? 'trending-up' : 'trending-down'"
+          size="1rem"
+        >
+        </vue-feather>
+        {{ money.format(variation * 100) }}%
+      </div>
+    </div>
     <label>Desconto</label>
     <BaseTextInput v-model="expense.discount" type="number" />
     <label>Total</label>
-    <BaseTextInput v-model="total" :readonly="true" type="number" />
+    <BaseTextInput v-model="total" :readonly="true" />
     <label>Recibo</label>
     <BaseTextInput v-model="expense.receipt" />
     <label>Forma de pagamento</label>
@@ -174,6 +215,20 @@ async function fetchProducts(text: string): Promise<string[]> {
   .part {
     display: flex;
     gap: $gap;
+  }
+
+  .variation {
+    display: flex;
+    gap: $gap;
+    padding: $gap;
+
+    &.positive {
+      color: #f33b41;
+    }
+
+    &.negative {
+      color: #00ca75;
+    }
   }
 }
 

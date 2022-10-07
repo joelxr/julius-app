@@ -41,14 +41,16 @@ onDeactivated(() => {
 const selecting: Ref<boolean> = ref(false)
 
 window.onclick = (e: any) => {
-  if (
-    !(
-      dropdown.value.contains(e.target) ||
-      input.value.contains(e.target) ||
-      input.value === e.target
-    )
-  ) {
-    selecting.value = false
+  if (dropdown.value && input.value) {
+    if (
+      !(
+        dropdown.value.contains(e.target) ||
+        input.value.contains(e.target) ||
+        input.value === e.target
+      )
+    ) {
+      selecting.value = false
+    }
   }
 }
 </script>

@@ -7,8 +7,6 @@ if (!API_KEY || !API_URL) {
   throw new Error(`API_KEY and API_URL must be defined`)
 }
 
-console.log(API_URL)
-
 export const api = axios.create({
   baseURL: API_URL,
   timeout: 3000,
@@ -18,10 +16,10 @@ export const api = axios.create({
   },
 })
 
-export function useInsights<T>(basePath: string) {
+export function useSummary<T>(basePath: string) {
   return {
-    insights: (id: number) => {
-      return api.get<T>(`${basePath}/${id}/insights`)
+    summary: () => {
+      return api.get<T>(`${basePath}/summary`)
     },
   }
 }
