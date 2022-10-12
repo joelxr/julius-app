@@ -12,13 +12,13 @@ export default ({ query, text }: HighlightTextProps) => {
     return h('span', { style }, text)
   }
 
-  const splitResult = text.split(new RegExp(query))
+  const splitResult = text.split(new RegExp(query, 'i'))
   const result: any[] = []
 
   while (splitResult.length) {
     const r = splitResult.shift() || ''
-    const rIndex = text.indexOf(r)
-    const queryIndex = text.indexOf(query)
+    const rIndex = text.indexOf(r.toLocaleLowerCase())
+    const queryIndex = text.indexOf(query.toLocaleLowerCase())
 
     if (rIndex > queryIndex) {
       result.push({ text: query, highlight: true })

@@ -1,22 +1,14 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import type { Ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useExpenseStore } from '../stores/expense'
-import BaseButton from '../components/BaseButton.vue'
 import ListView from '../components/ListView.vue'
-import ExpensesList from '../components/ExpensesList.vue'
 import VueFeather from 'vue-feather'
 import { money } from '../formatters'
 
 const router = useRouter()
 const expenseStore = useExpenseStore()
-const orderBy: Ref<any> = ref({
-  date: 'desc',
-  total: '',
-})
 
-await expenseStore.find({ orderBy: orderBy.value })
+await expenseStore.find()
 
 function handleNew() {
   router.push({ name: 'expense-detail' })
@@ -28,15 +20,10 @@ function handleSelected(item: any) {
 
 function handleSearch(name: string) {
   if (name) {
-    expenseStore.find({ name, orderBy: orderBy.value })
+    expenseStore.find({ name })
   } else {
-    expenseStore.find({ orderBy: orderBy.value })
+    expenseStore.find()
   }
-}
-
-function handleOrderUpdated(event: any) {
-  orderBy.value[event.column] = event.order
-  expenseStore.find({ orderBy: orderBy.value })
 }
 </script>
 
@@ -46,8 +33,6 @@ function handleOrderUpdated(event: any) {
       <ListView
         aggregate-by-date
         :items="expenseStore.expenses"
-        :order-by="orderBy"
-        @order-updated="handleOrderUpdated"
         @search="handleSearch"
         @new="handleNew"
         @selected="handleSelected"

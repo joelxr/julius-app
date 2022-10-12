@@ -25,13 +25,20 @@ export const useTagStore = defineStore('tag', () => {
       ...query,
       start: filterStore.startDate,
       end: filterStore.endDate,
-      orderBy: getOrderByParamFromQuery(query?.orderBy || {}),
+      orderBy: getOrderByParamFromQuery({
+        name: filterStore.orderBy.name,
+        total: filterStore.orderBy.total,
+      }),
     })
     tags.value = result.data
   }
 
-  function findOne(id: number) {
-    return tagsService.findOne(id)
+  function findOne(id: number, params?: any) {
+    return tagsService.findOne(id, {
+      ...params,
+      start: filterStore.startDate,
+      end: filterStore.endDate,
+    })
   }
 
   function upsert(data: any) {

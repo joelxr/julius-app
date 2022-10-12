@@ -17,19 +17,30 @@ export const useProductStore = defineStore('product', () => {
     find()
   })
 
-  async function find(query?: any) {
-    const { data } = await productsService.find({
-      ...query,
-      start: filterStore.startDate,
-      end: filterStore.endDate,
-      orderBy: getOrderByParamFromQuery(query.orderBy || {}),
-    })
-
-    products.value = data
+  async function find({ query = {}, withGlobalFilter = true } = {}) {
+    if (withGlobalFilter) {
+      const { data } = await productsService.find({
+        ...query,
+        start: filterStore.startDate,
+        end: filterStore.endDate,
+        orderBy: getOrderByParamFromQuery({
+          name: filterStore.orderBy.name,
+          total: filterStore.orderBy.total,
+        }),
+      })
+      products.value = data
+    } else {
+      const { data } = await productsService.find(query)
+      products.value = data
+    }
   }
 
-  function findOne(id: number) {
-    return productsService.findOne(id)
+  function findOne(id: number, params?: any) {
+    return productsService.findOne(id, {
+      ...params,
+      start: filterStore.startDate,
+      end: filterStore.endDate,
+    })
   }
 
   function upsert(data: any) {

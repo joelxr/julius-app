@@ -29,8 +29,8 @@ export function useCrud<T>(basePath: string) {
     find: (params: any) => {
       return api.get<T[]>(basePath, { params })
     },
-    findOne: (id: number) => {
-      return api.get<T>(`${basePath}/${id}`)
+    findOne: (id: number, params?: any) => {
+      return api.get<T>(`${basePath}/${id}`, { params })
     },
     upsert: (data: any) => {
       return api.post<T>(basePath, data)

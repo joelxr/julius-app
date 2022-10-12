@@ -58,9 +58,13 @@ window.onclick = (e: any) => {
   }
 }
 
-function handleOptionClicked (ref: any) {
+function handleOptionClicked(ref: any) {
   filterStore.startDate = ref.start
   filterStore.endDate = ref.end
+}
+
+function updateSortingOptions(change: any) {
+  filterStore.orderBy[change.column] = change.order
 }
 </script>
 
@@ -93,6 +97,51 @@ function handleOptionClicked (ref: any) {
           {{ money.format(option.total) }}
         </div>
       </button>
+    </div>
+
+    <div :class="$style.sortingOptions">
+      <div :class="$style.title"> Ordenar por </div>
+      <div
+        v-for="column in Object.keys(filterStore.orderBy)"
+        :key="column"
+        :class="$style.sortItem"
+      >
+        <div :class="$style.column">
+          {{ column }}
+        </div>
+        <div :class="$style.order">
+          <button
+            :class="[
+              $style.btn,
+              filterStore.orderBy[column] === 'asc' ? $style.selected : '',
+            ]"
+            @click="
+              updateSortingOptions(
+                filterStore.orderBy[column] === 'asc'
+                  ? { column, order: null }
+                  : { column, order: 'asc' }
+              )
+            "
+          >
+            <vue-feather type="chevron-up" />
+          </button>
+          <button
+            :class="[
+              $style.btn,
+              filterStore.orderBy[column] === 'desc' ? $style.selected : '',
+            ]"
+            @click="
+              updateSortingOptions(
+                filterStore.orderBy[column] === 'desc'
+                  ? { column, order: null }
+                  : { column, order: 'desc' }
+              )
+            "
+          >
+            <vue-feather type="chevron-down" />
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -137,6 +186,7 @@ function handleOptionClicked (ref: any) {
   .dateOptions {
     display: flex;
     flex-flow: row wrap;
+    justify-content: center;
     gap: $gap;
     padding: 1rem;
 
@@ -160,6 +210,44 @@ function handleOptionClicked (ref: any) {
         background-color: $blue;
         border-radius: $border-radius;
         box-shadow: $default-shadow;
+      }
+    }
+  }
+
+  .sortingOptions {
+    margin: $gap;
+
+    .title {
+      margin: $gap;
+    }
+
+    .sortItem {
+      display: flex;
+      gap: $gap;
+      align-items: center;
+      margin-left: 2rem;
+
+      .column {
+        min-width: 80px;
+        font-size: 0.7rem;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+
+      .order {
+        display: flex;
+        justify-content: center;
+
+        .btn {
+          color: white;
+          cursor: pointer;
+          background-color: transparent;
+          border: none;
+
+          &.selected {
+            color: $blue;
+          }
+        }
       }
     }
   }

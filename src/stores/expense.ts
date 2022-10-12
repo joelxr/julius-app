@@ -21,7 +21,10 @@ export const useExpenseStore = defineStore('expense', () => {
       ...query,
       start: filterStore.startDate,
       end: filterStore.endDate,
-      orderBy: getOrderByParamFromQuery(query?.orderBy || {}),
+      orderBy: getOrderByParamFromQuery({
+        date: filterStore.orderBy.date,
+        total: filterStore.orderBy.total,
+      }),
     })
 
     if (updateStore) expenses.value = data

@@ -36,6 +36,7 @@ async function loadProduct(id: number) {
 }
 
 async function save() {
+  console.log(product.value)
   const { data }: any = await productStore.upsert(
     product.value.id
       ? { id: product.value.id, name: product.value.name }
@@ -120,7 +121,10 @@ async function handleTagClicked(tag: any, target: any) {
             @click="handleTagClicked(tag, $event.target)"
           />
           <label
-            v-if="searchTag && tag.name.includes(searchTag)"
+            v-if="
+              searchTag &&
+              tag.name.toLowerCase().includes(searchTag.toLowerCase())
+            "
             :for="tag.name"
           >
             <HighlightText :query="searchTag" :text="tag.name" />

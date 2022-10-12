@@ -26,7 +26,7 @@ const expense: Ref<any> = ref({
 
 const selectedProduct: Ref<any> = ref({})
 const lastExpenseWithProduct: Ref<any> = ref({})
-const variation: Ref<number> = ref()
+const variation: Ref<number | undefined> = ref()
 const total: Ref<string> = ref('')
 
 const productStore = useProductStore()
@@ -44,7 +44,10 @@ watchEffect(() => {
         (expense.value.discount || 0)
     )
 
-    if (lastExpenseWithProduct.value.unitPrice) {
+    if (
+      lastExpenseWithProduct.value &&
+      lastExpenseWithProduct.value.unitPrice
+    ) {
       variation.value =
         (expense.value.unitPrice - lastExpenseWithProduct.value.unitPrice) /
         expense.value.unitPrice
@@ -73,7 +76,7 @@ async function save() {
   delete data.product
   await expenseStore.upsert(data)
   await expenseStore.find()
-  router.push({ name: 'expense-detail' })
+  router.push({ name: 'expenses' })
 }
 
 async function remove() {
@@ -84,15 +87,15 @@ async function remove() {
 
 async function fetchProducts(text: string): Promise<string[]> {
   if (text) {
-    await productStore.find({ name: text })
+    await productStore.find({ query: { name: text }, withGlobalFilter: false })
   } else {
-    await productStore.find()
+    await productStore.find({ withGlobalFilter: false })
   }
 
   return Promise.resolve(productStore.products)
 }
 
-async function handleSelectedProduct(item) {
+async function handleSelectedProduct(item: any) {
   if (item) {
     const expensesWithThisProduct: any = await expenseStore.find(
       { productId: item.id },

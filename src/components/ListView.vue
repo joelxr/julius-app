@@ -3,21 +3,20 @@ import { ref, watchEffect } from 'vue'
 import type { Ref } from 'vue'
 import BaseButton from '../components/BaseButton.vue'
 import BaseTextInput from '../components/BaseTextInput.vue'
-import SortingSelect from '../components/SortingSelect.vue'
 import getItemsByDate from '../getItemsByDate'
+import debounce from 'lodash.debounce'
 import { relativeDateFormat } from '../formatters'
 
 interface ListViewProps {
   items: any[]
   aggregateByDate?: boolean
-  orderBy?: any
 }
 
 const props = withDefaults(defineProps<ListViewProps>(), {
   aggregateByDate: false,
-  orderBy: () => [{ column: 'name', order: 'asc' }],
 })
-const emit = defineEmits(['selected', 'new', 'search', 'orderUpdated'])
+
+const emit = defineEmits(['selected', 'new', 'search'])
 
 const itemsByDate: Ref<any> = ref([])
 
@@ -27,9 +26,9 @@ watchEffect(() => {
   }
 })
 
-function handleInput(event: any) {
+const handleInput = debounce((event) => {
   emit('search', event.target.value)
-}
+}, 1000)
 </script>
 
 <template>
@@ -39,10 +38,6 @@ function handleInput(event: any) {
         placeholder="Buscar"
         style="width: 100%; border-radius: 0"
         @input="handleInput"
-      />
-      <SortingSelect
-        :options="orderBy"
-        @order-updated="$emit('orderUpdated', $event)"
       />
     </div>
     <div v-if="aggregateByDate" :class="$style.list">
